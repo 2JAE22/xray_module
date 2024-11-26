@@ -1,0 +1,9 @@
+# wandb 폴더 내 모든 파일 무시
+wandb/*
+
+# output 폴더 내 모든 파일 무시
+output/*
+
+# data 및 data_sample 폴더 무조건 무시
+data*
+data_sample/*

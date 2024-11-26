@@ -1,0 +1,13 @@
+# configs/augmentation_configs/mnist_augmentation.yaml
+augmentation:
+  use_augmentation: False
+  
+  transforms:
+    # - name: ColorJitter
+    #   params:
+    #     brightness: 0.5
+    - name: RandAugment
+      params:
+        num_ops: 2
+        magnitude: 9
+

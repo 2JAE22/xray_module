@@ -1,0 +1,65 @@
+# XrayDataModule이 있는 경로
+data_module: "code.dataloader.custom_datamodules.Xray_datamodule.XrayDataModule"
+
+# Xray에서 쓸려는 모델모듈 가져오기(원리는 select한 모델이 있으면 그거를 p)
+model_module: "code.plmodules.smp_module.XrayModelModule"
+
+# 데이터 자체가 있는 경로
+data_config_path: "configs/data_configs/Xraydata_config.yaml" 
+augmentation_config_path: "configs/augmentation_configs/Xray_augmentation.yaml"
+
+sweep_path: "configs/train_configs/train/sweep.yaml"
+use_sweep: False #sweep 사용시 True 로.(default 는 False)
+
+
+
+model:
+  model_name: DeepLabV3PlusModel
+  num_classes: 397 # 136(위해)+ 19(정보저장) + 242(일반)
+  pretrained: True
+  parameters:         # 모델 파라미터 섹션 -> 이는 segmentation_models_pytorch 공식 라이브러리의 github에서 확인.
+    encoder_name: efficientnet-b0
+    encoder_weights: advprop # smp에서는 [imagenet, advprop]2개 디폴트로 있음
+
+
+loss:
+  name: CombinedLoss
+  parameters: 
+    {} # dict 형태로 작성해야함
+
+
+optimizer:
+  name: Adam
+  parameter:
+    lr: 2e-4
+    weight_decay: 1e-6
+
+scheduler:
+  name: MultiStepLR
+  parameters:
+    milestones: [10, 20, 30]
+    gamma: 0.1
+    verbose: True
+    
+trainer:
+  max_epochs: 10
+  accelerator: gpu
+  devices: [4,5,6,7,8,9]
+  default_root_dir: "output" #output 폴더에 결과 자동으로 추가.
+  strategy : "ddp" 
+
+callbacks:
+  model_checkpoint:
+    monitor: val_acc
+    save_top_k: 3
+    mode: max
+  early_stopping:
+    monitor: val_acc
+    patience: 10
+    mode: max
+
+wandb:
+  project: paper
+  name: Experiment_Run_01
+
+
